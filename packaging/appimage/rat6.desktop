@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=R.A.T. 6+
+Comment=Configure Mad Catz R.A.T. 6+ profiles, DPI, and lighting
+Exec=Rat6.App
+Icon=rat6
+Terminal=false
+Categories=Settings;HardwareSettings;
+StartupWMClass=Rat6.App

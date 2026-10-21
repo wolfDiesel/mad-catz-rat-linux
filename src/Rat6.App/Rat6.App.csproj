@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Rat6.App</AssemblyName>
+    <RootNamespace>Rat6.App</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>R.A.T. 6+</Product>
+    <Description>Mad Catz R.A.T. 6+ configuration app for Linux</Description>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Themes\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rat6.Protocol\Rat6.Protocol.csproj" />
+    <ProjectReference Include="..\Rat6.Device\Rat6.Device.csproj" />
+    <ProjectReference Include="..\Rat6.Helper\Rat6.Helper.csproj" />
+    <ProjectReference Include="..\Rat6.Transport\Rat6.Transport.csproj" />
+    <ProjectReference Include="..\Rat6.Transport.Linux\Rat6.Transport.Linux.csproj" />
+  </ItemGroup>
+</Project>

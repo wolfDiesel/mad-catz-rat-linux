@@ -1,0 +1,222 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Rat6.App.Controls"
+        xmlns:loc="using:Rat6.App.Localization"
+        xmlns:vm="using:Rat6.App.ViewModels"
+        x:Class="Rat6.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="R.A.T. 6+"
+        Width="1020"
+        Height="720"
+        MinWidth="900"
+        MinHeight="620"
+        Padding="16">
+
+  <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+    <Border Grid.Row="0" Classes="island" Padding="18,12">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+        <StackPanel Spacing="4" VerticalAlignment="Center">
+          <TextBlock Text="R.A.T. 6+" Classes="page-title" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="{Binding FirmwareText}" Classes="text-muted" />
+            <TextBlock Text="·" Classes="text-muted" />
+            <TextBlock Text="12cf:0c04" Classes="text-muted" />
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    VerticalAlignment="Center">
+          <StackPanel Spacing="4" Width="210">
+            <TextBlock Text="{Binding L.Profile}"
+                       Classes="field-label"
+                       HorizontalAlignment="Center" />
+            <Grid Width="210" Height="34">
+              <controls:ProfileSlider Width="210"
+                                      Height="34"
+                                      ProfileCount="4"
+                                      SelectedIndex="{Binding #ProfileInput.SelectedIndex, Mode=OneWay}"
+                                      TrackBrush="{DynamicResource BorderBrush}"
+                                      DotBrush="{DynamicResource ForegroundMutedBrush}"
+                                      ThumbBrush="{DynamicResource AccentPrimaryBrush}"
+                                      ThumbBorderBrush="{DynamicResource SurfaceRaisedBrush}"
+                                      IsHitTestVisible="False" />
+              <controls:ProfileDragArea x:Name="ProfileInput"
+                                        ProfileCount="4"
+                                        Value="{Binding ProfilePosition, Mode=TwoWay}"
+                                        SelectionChangedCommand="{Binding SelectProfileCommand}"
+                                        ToolTip.Tip="{Binding L.ProfileTooltip}" />
+            </Grid>
+            <TextBlock Text="{Binding ActiveSlotText}"
+                       Classes="text-muted"
+                       FontSize="11"
+                       HorizontalAlignment="Center" />
+          </StackPanel>
+
+          <Button Content="{Binding L.Activate}"
+                  Command="{Binding ActivateSlotCommand}"
+                  IsEnabled="{Binding CanActivate}"
+                  VerticalAlignment="Center"
+                  ToolTip.Tip="{Binding L.ActivateTooltip}" />
+          <Button Content="{Binding L.Refresh}"
+                  Command="{Binding RefreshCommand}"
+                  IsEnabled="{Binding !IsBusy}"
+                  VerticalAlignment="Center" />
+          <ComboBox Width="128"
+                    ItemsSource="{Binding Languages}"
+                    SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+                    VerticalAlignment="Center"
+                    ToolTip.Tip="{Binding L.LanguageLabel}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="loc:LanguageOption">
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <TabControl Grid.Row="1">
+      <TabItem Header="{Binding L.Lighting}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch">
+          <Border Classes="island"
+                  Padding="18"
+                  HorizontalAlignment="Stretch"
+                  Margin="0,10,0,0">
+            <StackPanel Spacing="12">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+                <ColorView Color="{Binding PickerColor, Mode=TwoWay}"
+                           IsVisible="{Binding ShowColorPicker}"
+                           IsAlphaEnabled="False"
+                           IsAlphaVisible="False"
+                           IsColorPaletteVisible="True"
+                           IsColorSpectrumVisible="True"
+                           IsColorComponentsVisible="False"
+                           IsColorModelVisible="False"
+                           IsComponentSliderVisible="False"
+                           IsComponentTextInputVisible="False"
+                           IsHexInputVisible="True"
+                           IsColorPreviewVisible="True"
+                           Width="300"
+                           Height="280"
+                           VerticalAlignment="Top" />
+
+                <StackPanel Grid.Column="1"
+                            Spacing="12"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top">
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding L.Zone}" Classes="field-label" />
+                      <ComboBox ItemsSource="{Binding Zones}"
+                                SelectedItem="{Binding SelectedZone}">
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate x:DataType="vm:ZoneOption">
+                            <TextBlock Text="{Binding Name}" />
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="4">
+                      <TextBlock Text="{Binding L.Mode}" Classes="field-label" />
+                      <ComboBox ItemsSource="{Binding LedModes}"
+                                SelectedItem="{Binding SelectedLedMode}">
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate x:DataType="vm:LedModeOption">
+                            <TextBlock Text="{Binding Name}" />
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </Grid>
+
+              <Grid ColumnDefinitions="Auto,*,42"
+                    IsVisible="{Binding ShowBreathingPeriod}"
+                    ColumnSpacing="8">
+                <TextBlock Text="{Binding L.Period}" Classes="field-label" />
+                <Slider Grid.Column="1"
+                        Minimum="1"
+                        Maximum="20"
+                        TickFrequency="1"
+                        IsSnapToTickEnabled="True"
+                        Value="{Binding BreathingPeriod}" />
+                <TextBlock Grid.Column="2" Text="{Binding BreathingPeriodText}" Classes="value" />
+              </Grid>
+
+              <Grid ColumnDefinitions="Auto,*,42" ColumnSpacing="8">
+                <TextBlock Text="{Binding L.Brightness}" Classes="field-label" />
+                <Slider Grid.Column="1"
+                        Minimum="0"
+                        Maximum="255"
+                        TickFrequency="1"
+                        IsSnapToTickEnabled="True"
+                        Value="{Binding Brightness}" />
+                <TextBlock Grid.Column="2" Text="{Binding BrightnessText}" Classes="value" />
+              </Grid>
+
+              <Button Content="{Binding L.ApplyLighting}"
+                      Classes="accent"
+                      Command="{Binding ApplyLedCommand}"
+                      IsEnabled="{Binding CanApply}" />
+            </StackPanel>
+          </Border>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="{Binding L.Sensitivity}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch">
+          <Border Classes="island"
+                  Padding="18"
+                  HorizontalAlignment="Stretch"
+                  Margin="0,10,0,0">
+            <StackPanel Spacing="12">
+              <ItemsControl ItemsSource="{Binding DpiStages}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:DpiStageViewModel">
+                    <Grid ColumnDefinitions="90,*,70" Margin="0,6">
+                      <TextBlock Text="{Binding Title}" Classes="field-label" />
+                      <Slider Grid.Column="1"
+                              Minimum="100"
+                              Maximum="10000"
+                              TickFrequency="100"
+                              IsSnapToTickEnabled="True"
+                              Value="{Binding Dpi}" />
+                      <TextBlock Grid.Column="2" Text="{Binding Display}" Classes="value" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <Button Content="{Binding L.ApplyDpi}"
+                      Classes="accent"
+                      Command="{Binding ApplyDpiCommand}"
+                      IsEnabled="{Binding CanApply}" />
+            </StackPanel>
+          </Border>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+
+    <Border Grid.Row="2" Classes="island" Padding="16,10">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <TextBlock Text="{Binding StatusText}"
+                   Foreground="{Binding StatusBrush}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center" />
+        <CheckBox Grid.Column="1"
+                  Content="{Binding L.AllowWrite}"
+                  IsChecked="{Binding AllowWrite}"
+                  VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

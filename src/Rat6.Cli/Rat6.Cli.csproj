@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Rat6.Cli</RootNamespace>
+    <AssemblyName>rat6</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rat6.Protocol\Rat6.Protocol.csproj" />
+    <ProjectReference Include="..\Rat6.Device\Rat6.Device.csproj" />
+    <ProjectReference Include="..\Rat6.Helper\Rat6.Helper.csproj" />
+    <ProjectReference Include="..\Rat6.Transport.Linux\Rat6.Transport.Linux.csproj" />
+  </ItemGroup>
+</Project>

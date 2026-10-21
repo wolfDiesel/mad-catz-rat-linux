@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.wolfdiesel.rat6</id>
+  <name>R.A.T. 6+</name>
+  <summary>Configure Mad Catz R.A.T. 6+ profiles, DPI, and lighting</summary>
+  <description>
+    <p>
+      Linux application for the Mad Catz R.A.T. 6+ gaming mouse. Select profiles,
+      tune four DPI stages, and configure per-zone RGB lighting.
+    </p>
+  </description>
+  <launchable type="desktop-id">rat6.desktop</launchable>
+  <provides>
+    <binary>Rat6.App</binary>
+  </provides>
+  <categories>
+    <category>Settings</category>
+  </categories>
+  <url type="homepage">https://github.com/wolfDiesel/mad-catz-rat-linux</url>
+  <developer_name>wolfDiesel</developer_name>
+  <releases>
+    <release version="1.0.0" date="2026-10-21"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

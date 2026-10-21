@@ -1,0 +1,50 @@
+name: Release AppImage
+
+on:
+  push:
+    tags:
+      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  appimage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install packaging dependencies
+        run: ./packaging/appimage/install-deps-ubuntu.sh
+
+      - name: Build AppImage
+        env:
+          RAW_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
+        run: |
+          APPIMAGE_VERSION="${RAW_VERSION#v}"
+          if [[ "$APPIMAGE_VERSION" == "main" || "$APPIMAGE_VERSION" == "master" || -z "$APPIMAGE_VERSION" ]]; then
+            APPIMAGE_VERSION="0.0.0-ci.${{ github.run_number }}"
+          fi
+          export APPIMAGE_VERSION
+          export OUTPUT_NAME="Rat6-${APPIMAGE_VERSION}-x86_64.AppImage"
+          ./packaging/appimage/build-appimage.sh
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rat6-x86_64.AppImage
+          path: dist/*.AppImage
+          if-no-files-found: error
+
+      - name: Attach AppImage to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.AppImage

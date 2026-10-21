@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Rat6.Device</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rat6.Protocol\Rat6.Protocol.csproj" />
+    <ProjectReference Include="..\Rat6.Transport\Rat6.Transport.csproj" />
+  </ItemGroup>
+</Project>

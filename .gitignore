@@ -1,0 +1,22 @@
+# Build outputs
+bin/
+obj/
+build/
+dist/
+*.AppImage
+
+# Local research and development data
+dumps/
+tools/
+docs/
+tests/
+.kodik/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+*.user

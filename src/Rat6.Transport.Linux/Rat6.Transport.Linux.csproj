@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Rat6.Transport.Linux</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rat6.Transport\Rat6.Transport.csproj" />
+    <ProjectReference Include="..\Rat6.Helper.Contract\Rat6.Helper.Contract.csproj" />
+  </ItemGroup>
+</Project>

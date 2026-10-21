@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Rat6.Protocol/Rat6.Protocol.csproj" />
+    <Project Path="src/Rat6.Transport/Rat6.Transport.csproj" />
+    <Project Path="src/Rat6.Transport.Linux/Rat6.Transport.Linux.csproj" />
+    <Project Path="src/Rat6.Helper.Contract/Rat6.Helper.Contract.csproj" />
+    <Project Path="src/Rat6.Helper/Rat6.Helper.csproj" />
+    <Project Path="src/Rat6.Device/Rat6.Device.csproj" />
+    <Project Path="src/Rat6.Cli/Rat6.Cli.csproj" />
+    <Project Path="src/Rat6.App/Rat6.App.csproj" />
+  </Folder>
+</Solution>
