@@ -325,7 +325,7 @@ public sealed class PolkitHelperTransport : IHidTransport
         var helper = FindHelper()
             ?? throw new IOException("Rat6.Helper was not found next to the app; build the solution.");
 
-        var wrapper = WriteWrapper(helper);
+        var wrapper = WriteWrapper(StageHelper(helper));
         return new HelperLaunch(DefaultPkexecPath, ["/bin/bash", wrapper]);
     }
 
@@ -369,7 +369,7 @@ public sealed class PolkitHelperTransport : IHidTransport
         var assembly = Path.Combine(directory, "Rat6.Helper.dll");
         var runtimeConfig = Path.Combine(directory, "Rat6.Helper.runtimeconfig.json");
 
-        if (File.Exists(appHost) && File.Exists(assembly))
+        if (File.Exists(appHost))
         {
             return new HelperCommand(appHost, []);
         }
@@ -380,6 +380,69 @@ public sealed class PolkitHelperTransport : IHidTransport
         }
 
         return null;
+    }
+
+    private static HelperCommand StageHelper(HelperCommand helper)
+    {
+        if (helper.Arguments.Count != 0
+            || !string.Equals(Path.GetFileName(helper.FileName), "Rat6.Helper", StringComparison.Ordinal))
+        {
+            return helper;
+        }
+
+        var sourceDirectory = Path.GetDirectoryName(helper.FileName);
+        if (sourceDirectory is null || File.Exists(Path.Combine(sourceDirectory, "Rat6.Helper.dll")))
+        {
+            return helper;
+        }
+
+        var directory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".local",
+            "share",
+            "rat6");
+        Directory.CreateDirectory(directory);
+
+        var target = Path.Combine(directory, "Rat6.Helper");
+        try
+        {
+            var source = new FileInfo(helper.FileName);
+            var staged = new FileInfo(target);
+            if (!staged.Exists
+                || staged.Length != source.Length
+                || staged.LastWriteTimeUtc != source.LastWriteTimeUtc)
+            {
+                var temporary = Path.Combine(
+                    directory,
+                    $".Rat6.Helper.{Environment.ProcessId}.{Guid.NewGuid():N}.tmp");
+                File.Copy(helper.FileName, temporary, overwrite: true);
+                SetExecutable(temporary);
+                File.Move(temporary, target, overwrite: true);
+            }
+
+            SetExecutable(target);
+            return new HelperCommand(target, []);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            throw new IOException($"Could not stage Rat6.Helper for pkexec: {exception.Message}", exception);
+        }
+    }
+
+    private static void SetExecutable(string path)
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            File.SetUnixFileMode(
+                path,
+                UnixFileMode.UserRead
+                | UnixFileMode.UserWrite
+                | UnixFileMode.UserExecute
+                | UnixFileMode.GroupRead
+                | UnixFileMode.GroupExecute
+                | UnixFileMode.OtherRead
+                | UnixFileMode.OtherExecute);
+        }
     }
 
     private static string WriteWrapper(HelperCommand helper)

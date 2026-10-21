@@ -6,11 +6,12 @@ PKG="$ROOT/packaging/appimage"
 BUILD="$ROOT/build/appimage"
 APPDIR="$BUILD/AppDir"
 PUBLISH="$BUILD/publish"
+HELPER_PUBLISH="$BUILD/helper"
 TOOLS="$BUILD/tools"
 APP_BIN_DIR="$APPDIR/usr/bin"
 
 export ARCH="${ARCH:-x86_64}"
-APPIMAGE_VERSION="${APPIMAGE_VERSION:-1.0.0}"
+APPIMAGE_VERSION="${APPIMAGE_VERSION:-1.0.1}"
 OUTPUT_NAME="${OUTPUT_NAME:-Rat6-${APPIMAGE_VERSION}-x86_64.AppImage}"
 export APPIMAGE_EXTRACT_AND_RUN=1
 
@@ -57,6 +58,21 @@ publish_app() {
     -o "$PUBLISH"
 }
 
+publish_helper() {
+  echo "Publishing Rat6.Helper (single-file, self-contained)..."
+  rm -rf "$HELPER_PUBLISH"
+  dotnet publish "$ROOT/src/Rat6.Helper/Rat6.Helper.csproj" \
+    -c Release \
+    -r linux-x64 \
+    --self-contained true \
+    -p:PublishSingleFile=true \
+    -p:IncludeNativeLibrariesForSelfExtract=true \
+    -p:DebugType=none \
+    -p:DebugSymbols=false \
+    -p:Version="$APPIMAGE_VERSION" \
+    -o "$HELPER_PUBLISH"
+}
+
 assemble_appdir() {
   echo "Assembling AppDir..."
   rm -rf "$APPDIR"
@@ -67,8 +83,12 @@ assemble_appdir() {
     "$APP_BIN_DIR/createdump" \
     "$APP_BIN_DIR/libcoreclrtraceptprovider.so" \
     "$APP_BIN_DIR/libmscordbi.so" \
-    "$APP_BIN_DIR/libmscordaccore.so"
+    "$APP_BIN_DIR/libmscordaccore.so" \
+    "$APP_BIN_DIR/Rat6.Helper.dll" \
+    "$APP_BIN_DIR/Rat6.Helper.deps.json" \
+    "$APP_BIN_DIR/Rat6.Helper.runtimeconfig.json"
 
+  install -Dm755 "$HELPER_PUBLISH/Rat6.Helper" "$APP_BIN_DIR/Rat6.Helper"
   chmod +x "$APP_BIN_DIR/Rat6.App" "$APP_BIN_DIR/Rat6.Helper"
 
   install -Dm644 "$PKG/rat6.desktop" "$APPDIR/rat6.desktop"
@@ -92,6 +112,7 @@ main() {
   desktop-file-validate "$PKG/rat6.desktop"
   ensure_tools
   publish_app
+  publish_helper
   assemble_appdir
 
   local icon

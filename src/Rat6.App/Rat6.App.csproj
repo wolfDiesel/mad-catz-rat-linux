@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Rat6.App</AssemblyName>
     <RootNamespace>Rat6.App</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Product>R.A.T. 6+</Product>
     <Description>Mad Catz R.A.T. 6+ configuration app for Linux</Description>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>

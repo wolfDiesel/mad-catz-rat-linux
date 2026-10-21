@@ -9,6 +9,8 @@
       tune four DPI stages, and configure per-zone RGB lighting.
     </p>
   </description>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
   <launchable type="desktop-id">rat6.desktop</launchable>
   <provides>
     <binary>Rat6.App</binary>
@@ -17,8 +19,11 @@
     <category>Settings</category>
   </categories>
   <url type="homepage">https://github.com/wolfDiesel/mad-catz-rat-linux</url>
-  <developer_name>wolfDiesel</developer_name>
+  <developer id="io.github.wolfdiesel">
+    <name>wolfDiesel</name>
+  </developer>
   <releases>
+    <release version="1.0.1" date="2026-10-21"/>
     <release version="1.0.0" date="2026-10-21"/>
   </releases>
   <content_rating type="oars-1.1"/>

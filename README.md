@@ -24,7 +24,9 @@ chmod +x Rat6-<version>-x86_64.AppImage
 
 The application needs access to the mouse hidraw interface. On the first access
 it asks for administrator privileges through the normal polkit dialog. No udev
-rules, policy packages, or system helpers are installed.
+rules, policy packages, or system helpers are installed. The AppImage stages
+its helper in `~/.local/share/rat6` so pkexec can execute it outside the
+AppImage FUSE mount.
 
 ## Build from source
 
@@ -45,7 +47,7 @@ The result is written to `dist/Rat6-<version>-x86_64.AppImage`.
 To build a specific version:
 
 ```bash
-APPIMAGE_VERSION=1.0.0 ./packaging/appimage/build-appimage.sh
+APPIMAGE_VERSION=1.0.1 ./packaging/appimage/build-appimage.sh
 ```
 
 ## Project layout
