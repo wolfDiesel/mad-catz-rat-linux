@@ -9,7 +9,6 @@ dist/
 dumps/
 tools/
 docs/
-tests/
 .kodik/
 
 # Python

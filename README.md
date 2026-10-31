@@ -41,7 +41,7 @@ mirror refreshed by GitLab. Both CIs build the AppImage from the same recipe,
 
 | Where | What it builds | What it publishes |
 |---|---|---|
-| GitLab `.gitlab-ci.yml` | `dotnet build`, AppImage — on `main` and on `v*` tags | job artifact; GitLab release on a tag |
+| GitLab `.gitlab-ci.yml` | `dotnet test`, `dotnet build`, AppImage — on `main` and on `v*` tags | test log and AppImage as job artifacts; GitLab release on a tag |
 | GitHub `.github/workflows/release-appimage.yml` | the same AppImage on `v*` tags | GitHub release with the AppImage attached |
 
 Release a version:
@@ -54,6 +54,19 @@ Release a version:
 4. GitLab builds the AppImage and creates the GitLab release; the mirror pushes
    the tag to GitHub, where the same tag starts the GitHub workflow and the
    GitHub release.
+
+## Tests
+
+The test project (`tests/Rat6.Tests`) covers the protocol frames, profile
+serialization, device operations replayed from the recorded profile fixtures in
+`tests/Rat6.Tests/Fixtures`, and the helper contract. No mouse is required.
+
+```bash
+dotnet test tests/Rat6.Tests/Rat6.Tests.csproj
+```
+
+GitLab CI runs the same command in the `test` stage on `main` and on `v*` tags;
+the TRX log is kept as a job artifact.
 
 ## Build from source
 
@@ -89,6 +102,7 @@ src/
   Rat6.Device/            device operations and backups
   Rat6.Cli/               command-line interface
   Rat6.App/               Avalonia application
+tests/                    xunit tests and profile fixtures
 packaging/appimage/       AppImage build files
 Rat6.slnx
 ```

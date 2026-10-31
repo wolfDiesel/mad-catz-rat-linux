@@ -5,6 +5,7 @@
 
 stages:
   - check
+  - test
   - build
   - appimage
   - release
@@ -50,6 +51,22 @@ version:
   artifacts:
     reports:
       dotenv: version.env
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Тесты не требуют мыши: строки профилей читаются из записанных фикстур
+# tests/Rat6.Tests/Fixtures. Лог в формате TRX остаётся артефактом job'а.
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0.100
+  script:
+    - dotnet test tests/Rat6.Tests/Rat6.Tests.csproj -c Release --logger "trx;LogFileName=rat6.trx" --results-directory artifacts/test-results
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - artifacts/test-results/*.trx
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

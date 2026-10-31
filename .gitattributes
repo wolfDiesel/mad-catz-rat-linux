@@ -1,0 +1,2 @@
+# Profile dumps are raw device bytes: keep them byte-for-byte.
+tests/Rat6.Tests/Fixtures/*.bin binary

@@ -9,4 +9,7 @@
     <Project Path="src/Rat6.Cli/Rat6.Cli.csproj" />
     <Project Path="src/Rat6.App/Rat6.App.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Rat6.Tests/Rat6.Tests.csproj" />
+  </Folder>
 </Solution>
