@@ -15,7 +15,11 @@ four DPI stages, and per-zone RGB lighting.
 
 ## AppImage
 
-Download `Rat6-<version>-x86_64.AppImage` from the releases page:
+Download `Rat6-<version>-x86_64.AppImage` from the releases page of either
+repository — the file is the same:
+
+- GitLab (main repository): `homelab/rat-linux` → Releases;
+- GitHub (mirror): <https://github.com/wolfDiesel/mad-catz-rat-linux/releases>.
 
 ```bash
 chmod +x Rat6-<version>-x86_64.AppImage
@@ -27,6 +31,29 @@ it asks for administrator privileges through the normal polkit dialog. No udev
 rules, policy packages, or system helpers are installed. The AppImage stages
 its helper in `~/.local/share/rat6` so pkexec can execute it outside the
 AppImage FUSE mount.
+
+## Releases and CI
+
+GitLab is the main repository: `origin` is
+`ssh://git@gitlab.localnet:30222/homelab/rat-linux.git`, and GitHub is a push
+mirror refreshed by GitLab. Both CIs build the AppImage from the same recipe,
+`packaging/appimage/build-appimage.sh`:
+
+| Where | What it builds | What it publishes |
+|---|---|---|
+| GitLab `.gitlab-ci.yml` | `dotnet build`, AppImage — on `main` and on `v*` tags | job artifact; GitLab release on a tag |
+| GitHub `.github/workflows/release-appimage.yml` | the same AppImage on `v*` tags | GitHub release with the AppImage attached |
+
+Release a version:
+
+1. set `<Version>` in `src/Rat6.App/Rat6.App.csproj` and commit;
+2. push to GitLab: `git push origin main`;
+3. tag and push the tag: `git tag vX.Y.Z && git push origin vX.Y.Z` — the tag
+   and `<Version>` must match, otherwise the GitLab `version` job fails before
+   anything is built;
+4. GitLab builds the AppImage and creates the GitLab release; the mirror pushes
+   the tag to GitHub, where the same tag starts the GitHub workflow and the
+   GitHub release.
 
 ## Build from source
 

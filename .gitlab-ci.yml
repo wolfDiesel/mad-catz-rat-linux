@@ -1,0 +1,113 @@
+# GitLab — основной контур: код, AppImage и релиз живут здесь.
+# GitHub — зеркало (push mirror из настроек проекта) и второй контур AppImage:
+# .github/workflows/release-appimage.yml собирает такой же AppImage из того же
+# тега и создаёт GitHub Release. Тег ставится один раз — в GitLab.
+
+stages:
+  - check
+  - build
+  - appimage
+  - release
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  DOTNET_IMAGE: mcr.microsoft.com/dotnet/sdk:10.0.100
+
+# Версия продукта живёт в <Version> src/Rat6.App/Rat6.App.csproj (её же
+# подставляет build-appimage.sh через -p:Version). Источник истины для релиза —
+# git-тег vX.Y.Z. Расхождение — ошибка человека: тег v1.1.0, а в AppImage 1.0.1.
+version:
+  stage: check
+  image: alpine:3.21
+  script:
+    - |
+      set -eu
+      version=$(sed -n 's|.*<Version>\(.*\)</Version>.*|\1|p' src/Rat6.App/Rat6.App.csproj | head -1)
+      if [ -z "$version" ]; then
+        echo "В src/Rat6.App/Rat6.App.csproj нет <Version>."; exit 1
+      fi
+      if [ -n "${CI_COMMIT_TAG:-}" ]; then
+        if ! echo "$CI_COMMIT_TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "Тег '$CI_COMMIT_TAG' не похож на версию. Нужен вид vX.Y.Z."; exit 1
+        fi
+        if [ "$version" != "${CI_COMMIT_TAG#v}" ]; then
+          echo "Тег $CI_COMMIT_TAG не совпадает с версией в csproj ($version)."; exit 1
+        fi
+        appimage_version="$version"
+      else
+        # Ветка — не релиз: версия помечена номером пайплайна, чтобы AppImage
+        # из main не выглядел выпущенным.
+        appimage_version="${version}-ci.${CI_PIPELINE_IID}"
+      fi
+      echo "Версия из csproj: $version; AppImage: $appimage_version"
+      {
+        echo "APPIMAGE_VERSION=$appimage_version"
+        echo "APPIMAGE_NAME=Rat6-${appimage_version}-x86_64.AppImage"
+      } > version.env
+      cat version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:10.0.100
+  needs: [version]
+  script:
+    - dotnet --version
+    - dotnet build Rat6.slnx -c Release
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Рецепт упаковки один на оба контура — packaging/appimage/build-appimage.sh.
+# Зависимости ставит тот же скрипт, что и в GitHub Actions, поэтому локальная
+# сборка, GitLab и GitHub не расходятся.
+appimage:
+  stage: appimage
+  image: mcr.microsoft.com/dotnet/sdk:10.0.100
+  needs: [version]
+  script:
+    - ./packaging/appimage/install-deps-ubuntu.sh
+    - APPIMAGE_VERSION="$APPIMAGE_VERSION" OUTPUT_NAME="$APPIMAGE_NAME" ./packaging/appimage/build-appimage.sh
+    - file "dist/$APPIMAGE_NAME"
+  artifacts:
+    name: "Rat6-$APPIMAGE_VERSION"
+    paths:
+      - dist/*.AppImage
+    expire_in: 90 days
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - src/**/*
+        - packaging/**/*
+        - .gitlab-ci.yml
+
+# Релиз GitLab — зеркало GitHub-релиза: тот же тег, тот же файл. Ссылка ведёт на
+# артефакт job'а appimage (проект приватный, скачивание — под своей учёткой).
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs: [version, appimage]
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  script:
+    - echo "Релиз $CI_COMMIT_TAG — файл $APPIMAGE_NAME"
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: "Rat6 $CI_COMMIT_TAG"
+    description: |
+      AppImage: $APPIMAGE_NAME
+      Собран из коммита $CI_COMMIT_SHA.
+
+      Тот же файл приложен к релизу на GitHub (зеркало).
+    assets:
+      links:
+        - name: "$APPIMAGE_NAME"
+          url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/dist/$APPIMAGE_NAME?job=appimage"
