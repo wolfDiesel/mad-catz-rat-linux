@@ -1,16 +1,47 @@
-name: Release AppImage
+name: CI
+
+# GitHub — зеркало GitLab (ADR 0006 в my-ops): тесты и AppImage здесь второй
+# контур, но собираются из тех же файлов. Тег ставится один раз — в GitLab,
+# зеркало приносит его сюда, и по тегу v* появляется GitHub Release.
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run tests
+        run: |
+          dotnet test tests/Rat6.Tests/Rat6.Tests.csproj -c Release \
+            --logger "junit;LogFilePath=${GITHUB_WORKSPACE}/artifacts/test-results/junit.xml"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/test-results/junit.xml
+          if-no-files-found: warn
+
   appimage:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +58,6 @@ jobs:
           RAW_VERSION: ${{ github.ref_name }}
         run: |
           APPIMAGE_VERSION="${RAW_VERSION#v}"
-          if [[ "$APPIMAGE_VERSION" == "main" || "$APPIMAGE_VERSION" == "master" || -z "$APPIMAGE_VERSION" ]]; then
-            APPIMAGE_VERSION="0.0.0-ci.${{ github.run_number }}"
-          fi
           export APPIMAGE_VERSION
           export OUTPUT_NAME="Rat6-${APPIMAGE_VERSION}-x86_64.AppImage"
           ./packaging/appimage/build-appimage.sh
@@ -42,7 +70,6 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}

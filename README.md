@@ -41,8 +41,8 @@ mirror refreshed by GitLab. Both CIs build the AppImage from the same recipe,
 
 | Where | What it builds | What it publishes |
 |---|---|---|
-| GitLab `.gitlab-ci.yml` | `dotnet test`, `dotnet build`, AppImage — on `main` and on `v*` tags | test log and AppImage as job artifacts; GitLab release on a tag |
-| GitHub `.github/workflows/release-appimage.yml` | the same AppImage on `v*` tags | GitHub release with the AppImage attached |
+| GitLab `.gitlab-ci.yml` | `dotnet test`, `dotnet build`, AppImage — on `main`, merge requests and `v*` tags | junit test report and AppImage as job artifacts; GitLab release on a tag |
+| GitHub `.github/workflows/ci.yml` | the same tests on `main`, pull requests and `v*` tags; the same AppImage on `v*` tags, after the tests pass | test report as a workflow artifact; GitHub release with the AppImage attached |
 
 Release a version:
 
@@ -65,8 +65,12 @@ serialization, device operations replayed from the recorded profile fixtures in
 dotnet test tests/Rat6.Tests/Rat6.Tests.csproj
 ```
 
-GitLab CI runs the same command in the `test` stage on `main` and on `v*` tags;
-the TRX log is kept as a job artifact.
+GitLab CI runs the same command in the `test` stage on `main`, on merge
+requests and on `v*` tags, with the JUnit logger from `JunitXml.TestLogger`: the
+report fills the pipeline's **Tests** tab and surfaces in merge requests. The
+GitHub workflow runs the same tests and uploads the report as an artifact; the
+AppImage job waits for them, so a tag with failing tests does not produce a
+release.
 
 ## Build from source
 

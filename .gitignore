@@ -3,6 +3,7 @@ bin/
 obj/
 build/
 dist/
+artifacts/
 *.AppImage
 
 # Local research and development data
